@@ -3,7 +3,7 @@ export const site = {
   nome: "Tiago de Souza Lima",
   cref: "CREF 018432-G/BA",
   instagram: "",  // PREENCHER: ex. "https://instagram.com/usuario"
-  whatsapp: "",   // PREENCHER: dígitos com DDI, ex. "5571999999999"
+  whatsapp: "",   // PREENCHER: número oficial com DDI (E.164), ex. "+5571999999999". Vazio = botões de WhatsApp ocultos.
   foto: "/images/tiago-treino.png",
   hero: {
     titulo: "Seu objetivo merece um acompanhamento personalizado.",
