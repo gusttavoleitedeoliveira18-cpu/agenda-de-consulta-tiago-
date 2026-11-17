@@ -1,7 +1,7 @@
 // Helpers para testes contra o banco LOCAL do Supabase (supabase start).
 // Nunca aponte TEST_DATABASE_URL para produção: os testes apagam dados.
 import { Client } from "pg";
-import { randomUUID, randomBytes, createHash } from "node:crypto";
+import { randomUUID, randomBytes } from "node:crypto";
 
 export const DB_URL = process.env.TEST_DATABASE_URL ?? "postgresql://postgres:postgres@127.0.0.1:54322/postgres";
 
@@ -76,23 +76,3 @@ export function novaChave() {
   return randomBytes(16).toString("hex");
 }
 
-export function token() {
-  const t = randomBytes(32).toString("base64url");
-  return { token: t, hash: createHash("sha256").update(t).digest("hex") };
-}
-
-export const SQL_SOLICITAR =
-  "select public.solicitar_agendamento($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16) as r";
-
-export function paramsSolicitar(o: { chave?: string; hash?: string; inicio: string; duracao?: number | null; buffer?: number; nome?: string; prazoHoras?: number }) {
-  return [
-    o.chave ?? novaChave(), o.hash ?? "h1", o.nome ?? "Aluno Teste", "aluno@example.test", "+5571999990000", "BR",
-    "consultoria_online", o.inicio, o.duracao === undefined ? 60 : o.duracao, o.buffer ?? 0, "America/Bahia", "",
-    o.prazoHoras ?? 48, "2026-11-17", "ciencia_aviso_privacidade", "procedimentos_preliminares_contrato",
-  ];
-}
-
-export async function solicitar(c: Client, o: Parameters<typeof paramsSolicitar>[0]): Promise<Resultado> {
-  const r = await comoServico<{ r: Resultado }>(c, SQL_SOLICITAR, paramsSolicitar(o));
-  return r.r;
-}

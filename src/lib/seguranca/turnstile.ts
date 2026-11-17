@@ -1,5 +1,5 @@
 import "server-only";
-import { turnstileConfig, modoTeste } from "@/lib/env";
+import { turnstileConfig } from "@/lib/env";
 
 export type ResultadoTurnstile = "ok" | "invalido" | "nao_configurado" | "indisponivel";
 
@@ -20,7 +20,7 @@ export async function verificarTurnstile(token: unknown, ip: string): Promise<Re
   }
 }
 
-/** Em modo de teste local sem chave, a verificação é dispensada explicitamente. */
-export function turnstileDispensado(): boolean {
-  return modoTeste() && !turnstileConfig().secret;
+/** Turnstile é opcional: só é exigido quando a chave secreta está configurada. */
+export function turnstileAtivo(): boolean {
+  return !!turnstileConfig().secret;
 }

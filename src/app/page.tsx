@@ -2,7 +2,6 @@ import Image from "next/image";
 import { Check, Laptop, Dumbbell, Trophy, MapPin, Users, type LucideIcon } from "lucide-react";
 import { site } from "@/config/site";
 import BookingForm from "@/components/BookingForm";
-import { servicosDisponiveis } from "@/lib/agenda/servicos";
 import { fusoProfissional, turnstileConfig } from "@/lib/env";
 import { rotuloFuso } from "@/lib/tempo";
 import { linkWhatsApp } from "@/lib/telefone";
@@ -77,8 +76,8 @@ export default function Home() {
 
       <section id="agendamento" className="bg-grafite py-16"><div className="mx-auto max-w-xl px-5">
         <h2 className="font-display text-3xl font-bold sm:text-4xl">Solicite sua avaliação</h2>
-        <p className="mb-8 mt-3 text-neblina">Envie sua preferência de data e horário. O profissional confirma a disponibilidade e responde por e-mail.</p>
-        <BookingForm servicosDisponiveis={servicosDisponiveis()} fuso={fuso} rotuloFuso={rotuloFuso(fuso)} turnstileSiteKey={turnstileConfig().siteKey} /></div></section>
+        <p className="mb-8 mt-3 text-neblina">Envie sua preferência de data e horário. O profissional confirma a disponibilidade e responde pelo WhatsApp.</p>
+        <BookingForm fuso={fuso} rotuloFuso={rotuloFuso(fuso)} turnstileSiteKey={turnstileConfig().siteKey} /></div></section>
     </main>
     <footer className="border-t border-white/10 bg-floresta py-12"><div className={`${wrap} grid gap-6 md:grid-cols-2`}>
       <div><p className="font-display text-xl font-bold">{site.nome}</p><p className="text-neblina">{site.cref}</p></div>

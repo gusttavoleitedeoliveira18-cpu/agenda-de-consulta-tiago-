@@ -7,19 +7,37 @@ import "react-phone-number-input/style.css";
 import { site } from "@/config/site";
 import { validate, type Erros } from "@/lib/validate";
 import Turnstile, { type TurnstileHandle } from "@/components/Turnstile";
-import { AlertTriangle, CheckCircle2, Loader2 } from "lucide-react";
+import { CheckCircle2, Loader2, MessageCircle } from "lucide-react";
 
 const input = "w-full min-h-[52px] rounded-xl bg-grafite border border-white/15 px-4 text-base text-marfim placeholder:text-neblina/70 focus:border-lima";
 
 type Props = {
-  /** Serviços com duração configurada (calculado no servidor). */
-  servicosDisponiveis: string[];
   fuso: string;
   rotuloFuso: string;
   turnstileSiteKey?: string;
 };
 
-type Resultado = { protocolo: string; email: "enviado" | "pendente" };
+type Resultado = { protocolo: string; whatsapp: string | null };
+
+const SERVICOS = site.tipos.map((t) => t.v);
+
+/** Link wa.me para o profissional com a solicitação já escrita (o aluno só aperta enviar). */
+function linkParaProfissional(d: Record<string, string>, protocolo: string, rotuloFuso: string): string | null {
+  const numero = site.whatsapp.replace(/\D/g, "");
+  if (numero.length < 10) return null;
+  const [ano, mes, dia] = (d.data_solicitada ?? "").split("-");
+  const servico = site.tipos.find((t) => t.v === d.tipo_atendimento)?.l ?? d.tipo_atendimento;
+  const linhas = [
+    `Olá, ${site.nome.split(" ")[0]}! Gostaria de agendar uma avaliação.`,
+    "",
+    `Nome: ${d.nome}`,
+    `Atendimento: ${servico}`,
+    `Data desejada: ${dia}/${mes}/${ano} às ${d.horario_solicitado}, ${rotuloFuso}`,
+    ...(d.objetivo?.trim() ? [`Objetivo: ${d.objetivo.trim()}`] : []),
+    `Protocolo: ${protocolo}`,
+  ];
+  return `https://wa.me/${numero}?text=${encodeURIComponent(linhas.join("\n"))}`;
+}
 
 /** Data de hoje (YYYY-MM-DD) no fuso do profissional, independente do fuso do aparelho. */
 function hojeNoFuso(fuso: string): string {
@@ -38,7 +56,7 @@ function novaChave() {
   return typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now().toString(16)}${Math.random().toString(16).slice(2)}`.padEnd(32, "0");
 }
 
-export default function BookingForm({ servicosDisponiveis, fuso, rotuloFuso, turnstileSiteKey }: Props) {
+export default function BookingForm({ fuso, rotuloFuso, turnstileSiteKey }: Props) {
   const [errs, setErrs] = useState<Erros>({});
   const [state, setState] = useState<"idle" | "sending" | "done">("idle");
   const [fail, setFail] = useState("");
@@ -56,8 +74,6 @@ export default function BookingForm({ servicosDisponiveis, fuso, rotuloFuso, tur
   useEffect(() => { setHoje(hojeNoFuso(fuso)); chave.current = novaChave(); }, [fuso]);
   useEffect(() => { if (state === "done") sucessoRef.current?.focus(); }, [state]);
 
-  const nenhumDisponivel = servicosDisponiveis.length === 0;
-
   async function onSubmit(ev: React.FormEvent<HTMLFormElement>) {
     ev.preventDefault();
     if (enviando.current) return; // evita clique duplo antes do re-render
@@ -67,7 +83,7 @@ export default function BookingForm({ servicosDisponiveis, fuso, rotuloFuso, tur
     for (const [k, v] of new FormData(ev.currentTarget)) if (typeof v === "string") dados[k] = v;
     dados.whatsapp = tel ?? "";
     dados.whatsapp_pais = pais ?? "";
-    const { e, ok } = validate(dados, { hoje: hojeNoFuso(fuso), servicosDisponiveis, telefoneValido: isValidPhoneNumber });
+    const { e, ok } = validate(dados, { hoje: hojeNoFuso(fuso), servicosDisponiveis: SERVICOS, telefoneValido: isValidPhoneNumber });
     setErrs(e);
     if (!ok) { document.getElementById(Object.keys(e)[0])?.focus(); return; }
     if (turnstileSiteKey && !captcha) {
@@ -82,9 +98,9 @@ export default function BookingForm({ servicosDisponiveis, fuso, rotuloFuso, tur
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...dados, turnstile: captcha, idempotency_key: chave.current }),
       });
-      const j = (await r.json().catch(() => ({}))) as { protocolo?: string; email?: "enviado" | "pendente"; errors?: Erros; error?: string };
+      const j = (await r.json().catch(() => ({}))) as { protocolo?: string; errors?: Erros; error?: string };
       if (r.ok && j.protocolo) {
-        setResultado({ protocolo: j.protocolo, email: j.email ?? "pendente" });
+        setResultado({ protocolo: j.protocolo, whatsapp: linkParaProfissional(dados, j.protocolo, rotuloFuso) });
         chave.current = novaChave();
         setState("done");
         return;
@@ -103,14 +119,13 @@ export default function BookingForm({ servicosDisponiveis, fuso, rotuloFuso, tur
 
   if (state === "done" && resultado) return (
     <div role="status" className="rounded-2xl border border-lima/40 bg-floresta p-8 text-center">
-      {resultado.email === "enviado"
-        ? <CheckCircle2 className="mx-auto mb-4 text-lima" size={44} aria-hidden />
-        : <AlertTriangle className="mx-auto mb-4 text-lima" size={44} aria-hidden />}
-      <h3 ref={sucessoRef} tabIndex={-1} className="font-display text-2xl font-semibold">
-        {resultado.email === "enviado" ? "Solicitação enviada com sucesso!" : "Solicitação registrada"}</h3>
-      {resultado.email === "enviado"
-        ? <p className="mt-3 text-neblina">O profissional irá analisar a disponibilidade e você receberá um retorno por e-mail. Confira também sua caixa de spam.</p>
-        : <p className="mt-3 text-neblina">Sua solicitação foi registrada, mas houve um problema no envio do e-mail de confirmação de recebimento. Não é preciso enviar de novo: guarde o protocolo abaixo. O profissional irá analisar a disponibilidade e responderá por e-mail.</p>}
+      <CheckCircle2 className="mx-auto mb-4 text-lima" size={44} aria-hidden />
+      <h3 ref={sucessoRef} tabIndex={-1} className="font-display text-2xl font-semibold">Solicitação registrada!</h3>
+      {resultado.whatsapp ? (<>
+        <p className="mt-3 text-neblina">Agora é só enviar sua solicitação ao profissional pelo WhatsApp. A mensagem já está pronta: basta tocar em enviar.</p>
+        <a href={resultado.whatsapp} target="_blank" rel="noopener noreferrer" className="mt-6 flex min-h-[56px] items-center justify-center gap-2 rounded-xl bg-lima px-6 text-lg font-semibold text-grafite transition active:scale-[.98]">
+          <MessageCircle aria-hidden /> Enviar pelo WhatsApp</a>
+      </>) : <p className="mt-3 text-neblina">O profissional irá analisar a disponibilidade e entrar em contato com você.</p>}
       <p className="mt-4 text-marfim">Protocolo: <strong className="font-display tracking-wide">{resultado.protocolo}</strong></p>
       <p className="mt-3 text-sm text-neblina">O horário só é confirmado após a resposta do profissional.</p>
     </div>);
@@ -119,7 +134,6 @@ export default function BookingForm({ servicosDisponiveis, fuso, rotuloFuso, tur
   return (
     <form onSubmit={onSubmit} noValidate className="grid gap-5 rounded-2xl bg-floresta p-6 sm:p-8" aria-busy={state === "sending"}>
       <input name="website" tabIndex={-1} autoComplete="off" aria-hidden className="hidden" />
-      {nenhumDisponivel && <p role="note" className="rounded-lg border border-lima/40 p-3 text-sm text-neblina">O agendamento on-line está em configuração e ainda não aceita solicitações. Em breve estará disponível.</p>}
       <Field id="nome" label="Nome completo *" erro={errs.nome}><input {...a("nome")} autoComplete="name" maxLength={120} /></Field>
       <Field id="email" label="E-mail *" erro={errs.email}><input {...a("email")} type="email" inputMode="email" autoComplete="email" maxLength={160} /></Field>
       <Field id="whatsapp" label="WhatsApp com DDD *" erro={errs.whatsapp}>
@@ -135,7 +149,7 @@ export default function BookingForm({ servicosDisponiveis, fuso, rotuloFuso, tur
       </Field>
       <Field id="tipo_atendimento" label="Tipo de atendimento *" erro={errs.tipo_atendimento}>
         <select {...a("tipo_atendimento")} defaultValue=""><option value="" disabled>Selecione</option>
-          {site.tipos.map((t) => { const ok = servicosDisponiveis.includes(t.v); return <option key={t.v} value={t.v} disabled={!ok}>{t.l}{ok ? "" : " (agendamento em breve)"}</option>; })}</select></Field>
+          {site.tipos.map((t) => <option key={t.v} value={t.v}>{t.l}</option>)}</select></Field>
       <div className="grid gap-5 sm:grid-cols-2">
         <Field id="data_solicitada" label="Data desejada *" erro={errs.data_solicitada}><input {...a("data_solicitada")} type="date" min={hoje} /></Field>
         <Field id="horario_solicitado" label="Horário desejado *" erro={errs.horario_solicitado}><input {...a("horario_solicitado")} type="time" /></Field>
@@ -153,7 +167,7 @@ export default function BookingForm({ servicosDisponiveis, fuso, rotuloFuso, tur
       </div>
       {turnstileSiteKey && <Turnstile ref={turnstile} siteKey={turnstileSiteKey} onToken={setCaptcha} onErro={() => setCaptchaErro(true)} />}
       {fail && <p role="alert" className="rounded-lg bg-[#3a1d18] p-3 text-sm text-[#ffb4a5]">{fail}</p>}
-      <button disabled={state === "sending" || nenhumDisponivel} className="flex min-h-[56px] items-center justify-center gap-2 rounded-xl bg-lima px-6 text-lg font-semibold text-grafite transition active:scale-[.98] disabled:opacity-60">
+      <button disabled={state === "sending"} className="flex min-h-[56px] items-center justify-center gap-2 rounded-xl bg-lima px-6 text-lg font-semibold text-grafite transition active:scale-[.98] disabled:opacity-60">
         {state === "sending" ? <><Loader2 className="animate-spin" aria-hidden /> Enviando…</> : "Solicitar avaliação"}</button>
       <p className="sr-only" aria-live="polite">{state === "sending" ? "Enviando solicitação…" : ""}</p>
     </form>);
