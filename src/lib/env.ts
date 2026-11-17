@@ -28,7 +28,7 @@ export function supabaseConfig() {
 }
 
 export function fusoProfissional(): string {
-  const tz = v("PROFESSIONAL_TIME_ZONE") ?? "America/Bahia";
+  const tz = v("PROFESSIONAL_TIME_ZONE") ?? "America/Sao_Paulo"; // horário de Brasília
   if (!IANAZone.isValidZone(tz)) throw new Error("PROFESSIONAL_TIME_ZONE inválido");
   return tz;
 }

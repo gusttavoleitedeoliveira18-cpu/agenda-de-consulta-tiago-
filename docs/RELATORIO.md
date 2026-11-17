@@ -74,11 +74,11 @@ CSRF/origem e honeypot; todos os campos obrigatórios, e-mail, telefone incomple
 
 ## 5. Pendências do proprietário
 
-1. **Duração real de cada serviço** (e intervalo entre atendimentos) em `src/config/agenda.ts` — **sem isso o formulário não aceita solicitações**.
-2. **WhatsApp oficial** em `src/config/site.ts` (formato `+55…`).
-3. Confirmar o fuso (`America/Bahia`) e os prazos de 48 h.
-4. Dias e horários de funcionamento (opcional).
-5. E-mail que recebe os avisos internos (`ADMIN_NOTIFICATION_EMAIL`).
+1. ~~Duração dos serviços~~ — **definido**: cada solicitação bloqueia 60 min na agenda; o atendimento em si é definido pelo profissional. Opção "Ainda não sei" retirada.
+2. ~~WhatsApp oficial~~ — **definido**: +55 71 98188-0556.
+3. ~~Fuso e prazos~~ — **definido**: horário de Brasília (`America/Sao_Paulo`), 48 h.
+4. Dias e horários de funcionamento (opcional) — **aguardando o profissional**.
+5. E-mail que recebe os avisos internos (`ADMIN_NOTIFICATION_EMAIL`) — **aguardando o profissional**.
 6. Domínio do site e domínio/remetente verificado no Resend.
 7. Credenciais (Supabase, Resend, Turnstile, `CRON_SECRET`, `TOKEN_ENCRYPTION_KEY`) cadastradas **diretamente** na Vercel/.env.local — nunca pelo chat.
 8. Aviso de Privacidade: CPF/CNPJ e endereço do controlador, encarregado (ou dispensa), canal de atendimento ao titular, regiões/salvaguardas dos provedores, **prazo de retenção** — e validação jurídica do texto e das bases legais.

@@ -80,7 +80,7 @@ export default function RespostaProposta() {
       <CheckCircle2 className="mb-3 text-lima" size={40} aria-hidden />
       <h2 ref={titulo} tabIndex={-1} className="font-display text-2xl font-semibold">{e.acao === "aceitar" ? "Horário confirmado!" : "Resposta registrada"}</h2>
       <p className="mt-3 text-neblina">{e.acao === "aceitar"
-        ? `Seu atendimento está confirmado para ${quando(e.p.inicio_proposto, e.p.fuso_horario)} (${e.p.fuso_horario}). Você também receberá a confirmação por e-mail.`
+        ? `Seu atendimento está confirmado para ${quando(e.p.inicio_proposto, e.p.fuso_horario)} (${e.p.fuso_horario === "America/Sao_Paulo" ? "horário de Brasília" : e.p.fuso_horario}). Você também receberá a confirmação por e-mail.`
         : "Registramos que você não aceitou o horário proposto. A solicitação foi encerrada e você pode enviar uma nova quando quiser."}</p>
       <p className="mt-4 text-sm text-neblina">Protocolo: <strong className="text-marfim">{e.p.protocolo}</strong></p>
     </div>);
@@ -92,7 +92,7 @@ export default function RespostaProposta() {
       <p className="text-lg">Olá, {p.primeiro_nome}! O profissional propôs um novo horário para o seu atendimento.</p>
       <dl className="mt-6 grid gap-3">
         {[["Atendimento", p.servico], ["Você solicitou", quando(p.inicio_solicitado, p.fuso_horario)], ["Horário proposto", quando(p.inicio_proposto, p.fuso_horario)],
-          ...(p.duracao_minutos ? [["Duração prevista", `${p.duracao_minutos} minutos`]] : []), ["Fuso horário", p.fuso_horario],
+          ["Fuso horário", p.fuso_horario === "America/Sao_Paulo" ? "Horário de Brasília" : p.fuso_horario],
           ["Responda até", quando(p.expira_em, p.fuso_horario)], ["Protocolo", p.protocolo]].map(([k, v]) => (
           <div key={k} className="rounded-xl border border-white/10 bg-grafite p-4"><dt className="text-sm text-neblina">{k}</dt><dd className="font-display text-lg font-semibold">{v}</dd></div>))}
       </dl>

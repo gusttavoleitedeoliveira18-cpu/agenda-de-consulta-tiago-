@@ -3,7 +3,7 @@ import { MessageCircle } from "lucide-react";
 import { exigirAdminPagina } from "@/lib/admin/auth";
 import { prazoRestante } from "@/lib/admin/consultas";
 import { fusoProfissional } from "@/lib/env";
-import { formatarCurto, formatarDataHora, hojeNoFuso, partesLocais } from "@/lib/tempo";
+import { formatarCurto, formatarDataHora, hojeNoFuso, nomeFuso, partesLocais } from "@/lib/tempo";
 import { formatarTelefone, linkWhatsApp } from "@/lib/telefone";
 import { nomeServico, servico } from "@/lib/agenda/servicos";
 import Status, { rotuloEstado } from "@/components/admin/Status";
@@ -59,8 +59,8 @@ export default async function Detalhe({ params, searchParams }: { params: Promis
     ["Horário originalmente solicitado", formatarDataHora(a.inicio_solicitado, fuso)],
     ...(a.inicio_proposto ? [["Horário proposto", formatarDataHora(a.inicio_proposto, fuso)] as [string, string]] : []),
     ...(a.inicio_confirmado ? [["Horário confirmado", formatarDataHora(a.inicio_confirmado, fuso)] as [string, string]] : []),
-    ["Duração", a.duracao_minutos ? `${a.duracao_minutos} min${a.buffer_minutos ? ` + ${a.buffer_minutos} min de intervalo` : ""}` : sv?.duracaoMinutos ? `${sv.duracaoMinutos} min (configuração atual)` : "Não configurada"],
-    ["Fuso horário", fuso],
+    ["Bloco reservado na agenda", a.duracao_minutos ? `${a.duracao_minutos} min${a.buffer_minutos ? ` + ${a.buffer_minutos} min de intervalo` : ""}` : sv?.duracaoMinutos ? `${sv.duracaoMinutos} min (configuração atual)` : "Não configurada"],
+    ["Fuso horário", nomeFuso(fuso)],
     ["Recebido em", formatarDataHora(a.created_at, fuso)],
     ...(prazo && ["pendente", "aguardando_resposta"].includes(a.status) ? [["Prazo restante", `${prazo} (até ${formatarCurto(a.expira_em, fuso)})`] as [string, string]] : []),
     ...(a.respondido_em ? [["Resposta do aluno em", formatarDataHora(a.respondido_em, fuso)] as [string, string]] : []),
@@ -95,7 +95,7 @@ export default async function Detalhe({ params, searchParams }: { params: Promis
             <div className="mt-4"><AcaoForm acao={propor} id={a.id} rotulo="Enviar proposta" variante="secundaria" confirmar="Enviar esta proposta ao aluno? O horário atual será liberado.">
               <div className="grid gap-3 sm:grid-cols-2">
                 <div><label htmlFor="data" className="mb-1.5 block text-sm">Data</label><input id="data" name="data" type="date" min={hoje} defaultValue={sugestao.data} required className={campoAdmin} /></div>
-                <div><label htmlFor="hora" className="mb-1.5 block text-sm">Horário ({fuso})</label><input id="hora" name="hora" type="time" defaultValue={sugestao.hora} required className={campoAdmin} /></div>
+                <div><label htmlFor="hora" className="mb-1.5 block text-sm">Horário ({nomeFuso(fuso)})</label><input id="hora" name="hora" type="time" defaultValue={sugestao.hora} required className={campoAdmin} /></div>
               </div>
               <div><label htmlFor="motivo-p" className="mb-1.5 block text-sm">Observação interna (opcional)</label><input id="motivo-p" name="motivo" maxLength={500} className={campoAdmin} /></div>
             </AcaoForm></div>

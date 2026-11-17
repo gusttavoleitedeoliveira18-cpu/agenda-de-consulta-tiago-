@@ -20,7 +20,7 @@ const COMUM = { email: "usuario.comum@example.test", senha: "SenhaForte123" };
 
 function slot(horaFixa?: string) {
   slotSeq++;
-  const d = DateTime.now().setZone("America/Bahia").plus({ days: 2 + slotSeq }).toISODate()!;
+  const d = DateTime.now().setZone("America/Sao_Paulo").plus({ days: 2 + slotSeq }).toISODate()!;
   return { data_solicitada: d, horario_solicitado: horaFixa ?? "10:00" };
 }
 function corpo(extra: Record<string, unknown> = {}) {
@@ -97,15 +97,15 @@ describe("API pública de solicitação", () => {
     expect((await post(A, "/api/agendamento", corpo({ whatsapp: "+557198888" }))).j.errors.whatsapp).toMatch(/inválido/); // incompleto
     expect((await post(A, "/api/agendamento", corpo({ whatsapp: "+5500999999999" }))).j.errors.whatsapp).toMatch(/inválido/); // DDD inexistente
     expect((await post(A, "/api/agendamento", corpo({ whatsapp: "71988887777" }))).j.errors.whatsapp).toBeTruthy(); // sem país
-    const ontem = DateTime.now().setZone("America/Bahia").minus({ days: 1 }).toISODate();
+    const ontem = DateTime.now().setZone("America/Sao_Paulo").minus({ days: 1 }).toISODate();
     expect((await post(A, "/api/agendamento", corpo({ data_solicitada: ontem }))).j.errors.data_solicitada).toBeTruthy();
-    const hoje = DateTime.now().setZone("America/Bahia");
+    const hoje = DateTime.now().setZone("America/Sao_Paulo");
     if (hoje.hour > 0) {
       const passou = await post(A, "/api/agendamento", corpo({ data_solicitada: hoje.toISODate(), horario_solicitado: "00:00" }));
       expect(passou.j.errors.horario_solicitado).toMatch(/futuro/);
     }
     expect((await post(A, "/api/agendamento", corpo({ tipo_atendimento: "pilates" }))).j.errors.tipo_atendimento).toBeTruthy();
-    expect((await post(A, "/api/agendamento", corpo({ tipo_atendimento: "nao_sei" }))).j.errors.tipo_atendimento).toMatch(/ainda não está disponível/);
+    expect((await post(A, "/api/agendamento", corpo({ tipo_atendimento: "nao_sei" }))).j.errors.tipo_atendimento).toMatch(/Escolha um tipo/); // opção retirada
     expect((await post(A, "/api/agendamento", corpo({ privacidade: "" }))).j.errors.privacidade).toBeTruthy();
     expect((await db.query("select count(*)::int n from agendamentos")).rows[0].n).toBe(0);
   });
@@ -116,8 +116,8 @@ describe("API pública de solicitação", () => {
     expect(r.status).toBe(201);
     expect(r.j).toMatchObject({ ok: true, email: "enviado" });
     const a = await linha(r.j.protocolo);
-    expect(a).toMatchObject({ whatsapp: "+5571988887777", whatsapp_pais: "BR", status: "pendente", fuso_horario: "America/Bahia", privacidade_versao: "2026-11-17" });
-    expect(DateTime.fromJSDate(a.inicio_solicitado).setZone("America/Bahia").toFormat("yyyy-MM-dd HH:mm")).toBe(`${b.data_solicitada} 10:00`);
+    expect(a).toMatchObject({ whatsapp: "+5571988887777", whatsapp_pais: "BR", status: "pendente", fuso_horario: "America/Sao_Paulo", privacidade_versao: "2026-11-17" });
+    expect(DateTime.fromJSDate(a.inicio_solicitado).setZone("America/Sao_Paulo").toFormat("yyyy-MM-dd HH:mm")).toBe(`${b.data_solicitada} 10:00`);
     const lista = await esperar(async () => { const e = await emails(); return e.length >= 2 && e; });
     const aluno = lista.find((e) => e.to[0] === b.email)!;
     expect(aluno.subject).toMatch(/Recebemos/);
@@ -316,8 +316,8 @@ describe("Painel administrativo e proposta de horário (navegador)", () => {
     await foto(p, "admin-detalhe-desktop");
     const prop = await linha(r.j.protocolo);
     expect(prop.status).toBe("aguardando_resposta");
-    expect(DateTime.fromJSDate(prop.inicio_solicitado).setZone("America/Bahia").toFormat("HH:mm")).toBe("09:00");
-    expect(DateTime.fromJSDate(prop.reserva_inicio).setZone("America/Bahia").toFormat("HH:mm")).toBe("12:00");
+    expect(DateTime.fromJSDate(prop.inicio_solicitado).setZone("America/Sao_Paulo").toFormat("HH:mm")).toBe("09:00");
+    expect(DateTime.fromJSDate(prop.reserva_inicio).setZone("America/Sao_Paulo").toFormat("HH:mm")).toBe("12:00");
     expect(prop.token_hash).toMatch(/^[0-9a-f]{64}$/);
 
     const mail = await esperar(async () => (await emails()).find((e) => e.to[0] === b.email && /Proposta/.test(e.subject)));
@@ -426,7 +426,7 @@ describe("Painel administrativo e proposta de horário (navegador)", () => {
     expect((await linha(r2.j.protocolo)).reserva_inicio).toBeNull();
 
     // proposta para horário ocupado (o de a3) não altera nada
-    const ocupado = DateTime.fromJSDate(a3.inicio_solicitado).setZone("America/Bahia");
+    const ocupado = DateTime.fromJSDate(a3.inicio_solicitado).setZone("America/Sao_Paulo");
     const r4 = await post(A, "/api/agendamento", corpo(slot()));
     const a4 = await linha(r4.j.protocolo);
     await p.goto(`${A}/admin/agendamentos/${a4.id}`);
@@ -495,7 +495,7 @@ describe("Formulário público no navegador", () => {
     await p.fill("#whatsapp", "912345678");
     expect(await p.inputValue("#whatsapp")).toMatch(/^\+351 912 345 678$/);
     await p.selectOption("#tipo_atendimento", "acompanhamento_presencial");
-    expect(await p.locator("#tipo_atendimento option[value=nao_sei]").isDisabled()).toBe(true);
+    expect(await p.locator("#tipo_atendimento option[value=nao_sei]").count()).toBe(0);
     const s = slot("07:00");
     await p.fill("#data_solicitada", s.data_solicitada);
     await p.fill("#horario_solicitado", s.horario_solicitado);

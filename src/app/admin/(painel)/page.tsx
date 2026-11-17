@@ -1,7 +1,7 @@
 import { exigirAdminPagina } from "@/lib/admin/auth";
 import { COLUNAS_LISTA, prazoRestante, type Linha } from "@/lib/admin/consultas";
 import { fusoProfissional, pendenciasDeConfiguracao } from "@/lib/env";
-import { formatarCurto, hojeNoFuso, limitesDoDia } from "@/lib/tempo";
+import { formatarCurto, hojeNoFuso, limitesDoDia, nomeFuso } from "@/lib/tempo";
 import { nomeServico, servico } from "@/lib/agenda/servicos";
 import { linkWhatsApp } from "@/lib/telefone";
 import { site } from "@/config/site";
@@ -29,7 +29,7 @@ export default async function Painel({ searchParams }: { searchParams: Promise<R
   const n = (contagens.data ?? {}) as Record<string, number>;
 
   const pendConfig = [
-    ...site.tipos.filter((t) => !servico(t.v)?.duracaoMinutos).map((t) => `Duração do serviço "${t.l}" (src/config/agenda.ts)`),
+    ...site.tipos.filter((t) => !servico(t.v)?.duracaoMinutos).map((t) => `Bloco de agenda do serviço "${t.l}" (src/config/agenda.ts)`),
     ...(linkWhatsApp(site.whatsapp) ? [] : ["WhatsApp oficial do profissional (src/config/site.ts)"]),
     ...(agenda.horarioFuncionamento ? [] : ["Dias e horários de atendimento (opcional, src/config/agenda.ts)"]),
     ...pendenciasDeConfiguracao().map((v) => `Variável de ambiente ${v}`),
@@ -47,7 +47,7 @@ export default async function Painel({ searchParams }: { searchParams: Promise<R
 
   return (<>
     <h1 className="font-display text-3xl font-bold sm:text-4xl">Visão geral</h1>
-    <p className="mt-2 text-neblina">Horários no fuso {fuso}.</p>
+    <p className="mt-2 text-neblina">Horários em {nomeFuso(fuso)}.</p>
     {sp.senha === "alterada" && <p role="status" className="mt-4 rounded-lg border border-lima/40 p-3 text-sm">Senha alterada com sucesso.</p>}
     {erroConsulta && <p role="alert" className="mt-4 rounded-lg bg-[#3a1d18] p-3 text-sm text-[#ffb4a5]">Não foi possível carregar parte dos dados. Atualize a página.</p>}
 

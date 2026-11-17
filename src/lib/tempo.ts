@@ -56,11 +56,15 @@ export function formatarCurto(iso: string | null | undefined, fuso: string): str
   return d.isValid ? d.setLocale("pt-BR").toFormat("dd/MM/yyyy HH:mm") : "—";
 }
 
-/** Rótulo do fuso, ex.: "America/Bahia (UTC−03:00)". */
+const NOMES_FUSO: Record<string, string> = { "America/Sao_Paulo": "horário de Brasília" };
+
+/** Rótulo do fuso, ex.: "horário de Brasília (UTC−03:00)" ou "America/Bahia (UTC−03:00)". */
 export function rotuloFuso(fuso: string, agora: Date = new Date()): string {
   const off = DateTime.fromJSDate(agora, { zone: fuso }).toFormat("ZZ").replace("-", "−");
-  return `${fuso} (UTC${off})`;
+  return `${NOMES_FUSO[fuso] ?? fuso} (UTC${off})`;
 }
+
+export const nomeFuso = (fuso: string) => NOMES_FUSO[fuso] ?? fuso;
 
 /** Partes locais (data/hora) de um instante no fuso informado. */
 export function partesLocais(iso: string, fuso: string) {

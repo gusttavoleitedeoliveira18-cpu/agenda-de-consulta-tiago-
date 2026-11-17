@@ -28,13 +28,7 @@ cp .env.example .env.local  # preencha com os valores locais
 npm run dev                 # http://localhost:3000
 ```
 
-Sem duração configurada nos serviços (ver §4), o formulário informa que o agendamento está em configuração e não aceita envios. Para experimentar localmente, use o modo de teste **somente na sua máquina**:
-
-```bash
-APP_TEST_MODE=1 TEST_SERVICE_DURATIONS='{"consultoria_online":60}' npm run dev
-```
-
-O modo de teste nunca é ativado na Vercel (a variável `VERCEL` o desliga).
+O modo de teste (`APP_TEST_MODE=1`, usado pelos testes automatizados) nunca é ativado na Vercel (a variável `VERCEL` o desliga).
 
 ## 2. Testes
 
@@ -91,9 +85,9 @@ Um usuário autenticado que não está ativo em `administradores` não acessa o 
 
 ## 4. Configurações do proprietário (sem segredos)
 
-- `src/config/site.ts` — textos, serviços, **WhatsApp oficial** (`"+5571…"`, E.164). Vazio = botões de WhatsApp ocultos.
-- `src/config/agenda.ts` — **duração de cada serviço** (obrigatória para aceitar solicitações), intervalo entre atendimentos, dias/horários de funcionamento (opcional), prazos de expiração (48 h sugeridos), versão do Aviso de Privacidade.
-- `PROFESSIONAL_TIME_ZONE` — fuso (padrão sugerido `America/Bahia`).
+- `src/config/site.ts` — textos, serviços e WhatsApp oficial (+55 71 98188-0556, E.164).
+- `src/config/agenda.ts` — bloco de agenda por solicitação (60 min), intervalo extra (0), dias/horários de funcionamento (opcional, ainda não definido), prazos de expiração (48 h), versão do Aviso de Privacidade.
+- `PROFESSIONAL_TIME_ZONE` — fuso: horário de Brasília (`America/Sao_Paulo`).
 
 ## 5. Publicação na Vercel
 

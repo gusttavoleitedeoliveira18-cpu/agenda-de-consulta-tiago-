@@ -75,7 +75,6 @@ export function montarEmail(tipo: TipoNotificacao, ctx: Contexto): Email {
   const ola = p(`Olá, ${esc(primeiro)}!`);
   const protocolo: [string, string] = ["Protocolo", a.protocolo];
   const servico: [string, string] = ["Atendimento", ctx.nomeServico];
-  const duracao: [string, string][] = a.duracao_minutos ? [["Duração prevista", `${a.duracao_minutos} minutos`]] : [];
   const novoPedido = botao(`${ctx.siteUrl}/#agendamento`, "Fazer nova solicitação", true);
   const painel = `${ctx.siteUrl}/admin/agendamentos/${a.id}`;
 
@@ -94,7 +93,7 @@ export function montarEmail(tipo: TipoNotificacao, ctx: Contexto): Email {
     case "proposta_aceita":
       return T("Seu horário está confirmado", "Horário confirmado ✔",
         ola + p("Seu atendimento está <strong>confirmado</strong>.") +
-        linhas([protocolo, servico, ["Data e horário", quando(a.inicio_confirmado ?? a.reserva_inicio)], ...duracao]) +
+        linhas([protocolo, servico, ["Data e horário", quando(a.inicio_confirmado ?? a.reserva_inicio)]]) +
         blocoWhatsApp(`Olá! Meu horário (${a.protocolo}) foi confirmado.`),
         `Seu atendimento está confirmado.\nProtocolo: ${a.protocolo}\nData e horário: ${quando(a.inicio_confirmado ?? a.reserva_inicio)}`);
     case "recusa":
@@ -106,7 +105,7 @@ export function montarEmail(tipo: TipoNotificacao, ctx: Contexto): Email {
     case "proposta":
       return T("Proposta de novo horário", "O profissional propôs outro horário",
         ola + p("O horário solicitado não está disponível, mas o profissional propôs uma alternativa:") +
-        linhas([protocolo, servico, ["Você solicitou", quando(a.inicio_solicitado)], ["Horário proposto", quando(a.inicio_proposto)], ...duracao,
+        linhas([protocolo, servico, ["Você solicitou", quando(a.inicio_solicitado)], ["Horário proposto", quando(a.inicio_proposto)],
           ["Responda até", quando(a.expira_em)]]) +
         p("O horário proposto fica reservado para você até o prazo acima. Escolha se aceita ou não:") +
         (ctx.linkProposta ? botao(ctx.linkProposta, "Ver proposta e responder") : "") +

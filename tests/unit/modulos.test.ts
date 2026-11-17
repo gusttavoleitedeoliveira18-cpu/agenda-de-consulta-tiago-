@@ -36,6 +36,7 @@ describe("fuso horário", () => {
   });
   it("formata com rótulo de fuso", () => {
     expect(rotuloFuso("America/Bahia")).toBe("America/Bahia (UTC−03:00)");
+    expect(rotuloFuso("America/Sao_Paulo")).toBe("horário de Brasília (UTC−03:00)");
     expect(formatarDataHora("2026-12-01T12:30:00Z", "America/Bahia")).toBe("terça-feira, 01/12/2026 às 09:30");
   });
 });
@@ -82,7 +83,7 @@ describe("validação compartilhada", () => {
     expect(r.v?.email).toBe("ana@example.com");
   });
   it("aponta cada erro no campo correspondente", () => {
-    const r = validate({ ...ok, nome: "Ana", email: "x", whatsapp: "+55719", tipo_atendimento: "nao_sei", data_solicitada: "2026-11-16", horario_solicitado: "25:00", privacidade: "", objetivo: "a".repeat(601) }, opts);
+    const r = validate({ ...ok, nome: "Ana", email: "x", whatsapp: "+55719", tipo_atendimento: "aula_futebol", data_solicitada: "2026-11-16", horario_solicitado: "25:00", privacidade: "", objetivo: "a".repeat(601) }, opts);
     expect(Object.keys(r.e).sort()).toEqual(["data_solicitada", "email", "horario_solicitado", "nome", "objetivo", "privacidade", "tipo_atendimento", "whatsapp"]);
     expect(r.e.tipo_atendimento).toMatch(/ainda não está disponível/);
   });
@@ -139,8 +140,8 @@ describe("e-mails", () => {
     expect(e.html).toContain("CREF 018432-G/BA");
     expect(e.texto).toContain("NÃO");
   });
-  it("sem WhatsApp oficial configurado, não exibe botão nem link fictício", () => {
-    expect(montarEmail("confirmacao", ctx).html).not.toContain("wa.me");
+  it("inclui botão para o WhatsApp oficial do profissional", () => {
+    expect(montarEmail("confirmacao", ctx).html).toContain("https://wa.me/5571981880556");
   });
   it("proposta mostra horário original, proposto, prazo e botão de resposta", () => {
     const e = montarEmail("proposta", { ...ctx, linkProposta: "https://exemplo.test/proposta#t=abc" });

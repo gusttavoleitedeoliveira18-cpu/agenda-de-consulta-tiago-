@@ -22,6 +22,9 @@ export function servicosDisponiveis(): string[] {
   return site.tipos.map((t) => servico(t.v)).filter((s): s is ServicoEfetivo => !!s && s.ativo && !!s.duracaoMinutos).map((s) => s.codigo);
 }
 
+/** Nomes de opções que já existiram no formulário (registros antigos). */
+const NOMES_ANTIGOS: Record<string, string> = { nao_sei: "Ainda não sei" };
+
 export function nomeServico(codigo: string): string {
-  return site.tipos.find((t) => t.v === codigo)?.l ?? codigo;
+  return site.tipos.find((t) => t.v === codigo)?.l ?? NOMES_ANTIGOS[codigo] ?? codigo;
 }
