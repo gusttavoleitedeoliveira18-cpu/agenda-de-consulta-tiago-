@@ -3,7 +3,7 @@ export const site = {
   nome: "Tiago de Souza Lima",
   cref: "CREF 018432-G/BA",
   instagram: "",  // PREENCHER: ex. "https://instagram.com/usuario"
-  whatsapp: "",   // PREENCHER: dígitos com DDI, ex. "5571999999999"
+  whatsapp: "+5571981880556", // número oficial (E.164). Vazio = botões de WhatsApp ocultos.
   foto: "/images/tiago-treino.png",
   hero: {
     titulo: "Seu objetivo merece um acompanhamento personalizado.",
@@ -24,6 +24,5 @@ export const site = {
     { v: "consultoria_online", l: "Consultoria online" },
     { v: "acompanhamento_presencial", l: "Acompanhamento presencial" },
     { v: "aula_futebol", l: "Aula de futebol" },
-    { v: "nao_sei", l: "Ainda não sei" },
   ],
 };

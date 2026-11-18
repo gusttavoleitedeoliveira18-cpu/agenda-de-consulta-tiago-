@@ -1,12 +1,17 @@
 import Image from "next/image";
-import { Check, Laptop, Dumbbell, Trophy, MapPin, Users } from "lucide-react";
+import { Check, Laptop, Dumbbell, Trophy, MapPin, Users, type LucideIcon } from "lucide-react";
 import { site } from "@/config/site";
 import BookingForm from "@/components/BookingForm";
+import { fusoProfissional, turnstileConfig } from "@/lib/env";
+import { rotuloFuso } from "@/lib/tempo";
+import { linkWhatsApp } from "@/lib/telefone";
 const btn = "inline-flex min-h-[56px] items-center justify-center rounded-xl bg-lima px-7 text-lg font-semibold text-grafite transition active:scale-[.98]";
 const wrap = "mx-auto w-full max-w-6xl px-5 sm:px-8";
 const icons = [Laptop, Dumbbell, Trophy];
 export default function Home() {
-  const wa = site.whatsapp && `https://wa.me/${site.whatsapp}`;
+  const wa = linkWhatsApp(site.whatsapp); // null enquanto o número oficial não estiver configurado
+  const fuso = fusoProfissional();
+  const grupos: Array<[LucideIcon, string, string[]]> = [[Users, "Formatos", site.formatos], [MapPin, "Locais", site.locais]];
   return (<>
     <header className="fixed inset-x-0 top-0 z-30 border-b border-white/10 bg-grafite/85 backdrop-blur">
       <div className={`${wrap} flex h-16 items-center justify-between`}>
@@ -44,9 +49,9 @@ export default function Home() {
               <I className="text-lima" size={32} aria-hidden /><h3 className="mt-4 font-display text-xl font-semibold">{s.t}</h3><p className="mt-2 text-neblina">{s.d}</p></article>); })}
         </div>
         <div className="mt-8 grid gap-6 sm:grid-cols-2">
-          {[[Users, "Formatos", site.formatos], [MapPin, "Locais", site.locais]].map(([I, t, l]: any) => (
+          {grupos.map(([I, t, l]) => (
             <div key={t}><h3 className="flex items-center gap-2 font-semibold"><I size={20} className="text-lima" aria-hidden />{t}</h3>
-              <ul className="mt-3 flex flex-wrap gap-2">{l.map((x: string) => <li key={x} className="rounded-full border border-white/20 px-4 py-2 text-sm">{x}</li>)}</ul></div>))}
+              <ul className="mt-3 flex flex-wrap gap-2">{l.map((x) => <li key={x} className="rounded-full border border-white/20 px-4 py-2 text-sm">{x}</li>)}</ul></div>))}
         </div></section>
 
       <section id="metodo" className="bg-floresta py-16"><div className={wrap}>
@@ -71,8 +76,8 @@ export default function Home() {
 
       <section id="agendamento" className="bg-grafite py-16"><div className="mx-auto max-w-xl px-5">
         <h2 className="font-display text-3xl font-bold sm:text-4xl">Solicite sua avaliação</h2>
-        <p className="mb-8 mt-3 text-neblina">Envie sua preferência de data e horário. O profissional confirma a disponibilidade e responde por e-mail.</p>
-        <BookingForm /></div></section>
+        <p className="mb-8 mt-3 text-neblina">Envie sua preferência de data e horário. O profissional confirma a disponibilidade e responde pelo WhatsApp.</p>
+        <BookingForm fuso={fuso} rotuloFuso={rotuloFuso(fuso)} turnstileSiteKey={turnstileConfig().siteKey} /></div></section>
     </main>
     <footer className="border-t border-white/10 bg-floresta py-12"><div className={`${wrap} grid gap-6 md:grid-cols-2`}>
       <div><p className="font-display text-xl font-bold">{site.nome}</p><p className="text-neblina">{site.cref}</p></div>
