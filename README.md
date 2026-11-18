@@ -57,6 +57,7 @@ Ver as solicitações: **Table Editor → agendamentos** (colunas `protocolo`, `
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET_KEY` | opcional | Cloudflare → Turnstile → Add site |
 
 3. As funções rodam em São Paulo (`vercel.json` → `gru1`), perto do banco.
+4. Cada envio para um branch gera um link de pré-visualização (`…-git-<branch>-….vercel.app`) para testar antes do merge. Variáveis novas só valem para deploys feitos depois de cadastradas.
 
 ## Configurações (sem segredos)
 
