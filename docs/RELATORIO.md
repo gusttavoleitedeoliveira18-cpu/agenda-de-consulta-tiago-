@@ -32,13 +32,13 @@ Decisões registradas: WhatsApp +55 71 98188-0556; horário de Brasília (`Ameri
 | Visual (antes × depois, 1440×900 e iPhone 13) | **Aprovado**: acima do formulário, a única diferença de pixels é a frase "responde por e-mail" → "responde pelo WhatsApp". Capturas em `docs/visual/` |
 | Supabase de produção (projeto São Paulo) | Migrações 1–4 aplicadas e conferidas pelo proprietário (7 tabelas, funções, pg_cron, RLS). **Migração 5 pendente** de execução no SQL Editor |
 | Turnstile real da Cloudflare | **Bloqueado por configuração externa** (Cloudflare inacessível neste ambiente; chaves não configuradas) |
-| Vercel | **Não executado** (aguardando publicação) |
+| Vercel | Projeto criado e conectado ao GitHub em 18/11 (variáveis `SUPABASE_URL` e `SUPABASE_SECRET_KEY` cadastradas); teste pela pré-visualização do pull request **em andamento** |
 | Safari/iPhone, Android, Windows reais | **Não executado** (Chromium com emulação de iPhone 13) |
 
 ## 5. Pendências do proprietário
 
-1. Executar a migração 5 no SQL Editor do Supabase.
-2. Publicar na Vercel com `SUPABASE_URL` e `SUPABASE_SECRET_KEY` (direto no painel da Vercel, nunca pelo chat).
+1. ~~Executar a migração 5 no SQL Editor do Supabase~~ — feito.
+2. Testar a pré-visualização da Vercel e, se aprovada, fazer o merge do pull request para publicar.
 3. (Recomendado) Cloudflare Turnstile e `PUBLIC_SITE_URL`.
 4. Aviso de Privacidade: CPF/CNPJ e endereço do controlador, encarregado (ou dispensa), canal para os titulares, prazo de retenção e validação jurídica.
 5. Autorização de imagem dos alunos que aparecem na foto.
