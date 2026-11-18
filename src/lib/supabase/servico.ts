@@ -10,7 +10,14 @@ let cache: SupabaseClient | null = null;
 
 export function clienteServico(): SupabaseClient | null {
   const { url, secret } = supabaseConfig();
-  if (!url || !secret) return null;
+  if (!url || !secret) {
+    console.error("supabase: configuração ausente", JSON.stringify({ SUPABASE_URL: !!url, SUPABASE_SECRET_KEY: !!secret }));
+    return null;
+  }
+  if (!/^https?:\/\//.test(url)) {
+    console.error("supabase: SUPABASE_URL não parece uma URL (verifique se os valores não foram trocados)");
+    return null;
+  }
   cache ??= createClient(url, secret, {
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
     global: { headers: { "X-Client-Info": "agenda-servidor" } },

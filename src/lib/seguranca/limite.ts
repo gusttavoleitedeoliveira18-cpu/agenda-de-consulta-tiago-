@@ -25,7 +25,11 @@ export async function consumir(db: SupabaseClient, regra: Regra, identificador: 
   const { data, error } = await db.rpc("consumir_limite", {
     p_chave: `${regra.nome}:${id}`, p_janela_segundos: regra.janelaSegundos, p_max: regra.max,
   });
-  if (error) return "erro";
+  if (error) {
+    // Sem dados pessoais nem segredos: apenas o código/mensagem do erro.
+    console.error("rate-limit: falha ao consultar o banco", error.code ?? "", error.message ?? "");
+    return "erro";
+  }
   return data === true ? "ok" : "excedido";
 }
 
