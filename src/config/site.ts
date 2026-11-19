@@ -18,7 +18,7 @@ export const site = {
   formatos: ["Individual", "Pequenos grupos"],
   locais: ["Academia", "Domicílio", "Online"],
   diferenciais: ["Avaliação física individualizada", "Análise biomecânica", "Periodização estratégica dos treinos", "Atenção à execução correta dos exercícios", "Adaptação às limitações individuais", "Monitoramento da evolução"],
-  publico: ["Crianças", "Pessoas idosas"],
+  publico: ["Crianças", "Crianças com autismo (TEA)", "Pessoas idosas"],
   etapas: ["Solicite sua avaliação.", "Converse com o profissional sobre suas necessidades e objetivos.", "Receba um acompanhamento planejado de acordo com suas necessidades."],
   tipos: [
     { v: "consultoria_online", l: "Consultoria online" },
