@@ -10,7 +10,7 @@
 export const agenda = {
   privacidade: {
     /** Atualize sempre que o texto de /privacidade mudar. */
-    versao: "2026-11-18",
+    versao: "2026-11-19",
     manifestacao: "ciencia_aviso_privacidade",
     /** LGPD art. 7º, V — procedimentos preliminares relacionados a contrato, a pedido do titular (sujeita à validação do controlador). */
     baseLegal: "procedimentos_preliminares_contrato",

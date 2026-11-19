@@ -2,6 +2,7 @@
 export const site = {
   nome: "Tiago de Souza Lima",
   cref: "CREF 018432-G/BA",
+  cidade: "Salvador – BA",
   instagram: "",  // PREENCHER: ex. "https://instagram.com/usuario"
   whatsapp: "+5571981880556", // número oficial (E.164). Vazio = botões de WhatsApp ocultos.
   foto: "/images/tiago-treino.png",
