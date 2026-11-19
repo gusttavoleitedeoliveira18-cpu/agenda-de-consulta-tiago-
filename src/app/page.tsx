@@ -82,7 +82,7 @@ export default function Home() {
     <footer className="border-t border-white/10 bg-floresta py-12"><div className={`${wrap} grid gap-6 md:grid-cols-2`}>
       <div><p className="font-display text-xl font-bold">{site.nome}</p><p className="text-neblina">{site.cref}</p></div>
       <div className="flex flex-wrap gap-4 md:justify-end">
-        {site.instagram && <a className="underline" href={site.instagram}>Instagram</a>}
+        {site.instagram && <a className="underline" href={site.instagram} target="_blank" rel="noopener noreferrer">Instagram</a>}
         {wa && <a className="underline" href={wa}>WhatsApp</a>}
         <a className="underline" href="/privacidade">Aviso de Privacidade</a>
         <a href="#agendamento" className="font-semibold text-lima">Solicitar avaliação</a></div></div></footer>
