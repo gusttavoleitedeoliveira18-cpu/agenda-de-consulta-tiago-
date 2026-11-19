@@ -64,6 +64,25 @@ describe("registrar_solicitacao", () => {
   });
 });
 
+describe("retenção de 1 ano", () => {
+  it("apaga solicitações com mais de 1 ano (com histórico) e mantém as recentes", async () => {
+    const velha = await registrar({ inicio: emHoras(30) });
+    const nova = await registrar({ inicio: emHoras(31) });
+    await c.query("update agendamentos set created_at = now() - interval '13 months' where id=$1", [velha.id]);
+    const n = await comoServico<{ n: number }>(c, "select public.aplicar_retencao(12) n").catch(() => null);
+    expect(n).toBeNull(); // service_role não executa a rotina; só o pg_cron (dono)
+    expect((await c.query("select public.aplicar_retencao(12) n")).rows[0].n).toBe(1);
+    expect((await c.query("select id from agendamentos")).rows.map((r) => r.id)).toEqual([nova.id]);
+    expect((await c.query("select count(*)::int n from agendamento_eventos where agendamento_id=$1", [velha.id])).rows[0].n).toBe(0);
+    expect((await c.query("select count(*)::int n from agendamento_eventos where agendamento_id=$1", [nova.id])).rows[0].n).toBe(2);
+  });
+
+  it("fora da rotina de retenção, o histórico continua sem exclusão", async () => {
+    const r = await registrar({ inicio: emHoras(30) });
+    await expect(c.query("delete from agendamento_eventos where agendamento_id=$1", [r.id])).rejects.toThrow(/historico_imutavel/);
+  });
+});
+
 describe("acesso direto ao banco", () => {
   it("visitante anônimo e usuário autenticado não leem nem gravam solicitações", async () => {
     await registrar({ inicio: emHoras(30) });
